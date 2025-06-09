@@ -113,7 +113,7 @@ curl -X POST https://your-api-id.execute-api.us-east-1.amazonaws.com/log \
 
 ```json
 {
-  "message": "Log saved successfully"
+  "message": "Hello from lambda"
 }
 ```
 
