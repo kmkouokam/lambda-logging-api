@@ -1,0 +1,139 @@
+# 📊 Lambda-Powered Logging API
+
+This project provides a serverless API to log user activity into a PostgreSQL database using an AWS Lambda function behind an API Gateway.
+
+---
+
+## 📦 Features
+
+- 🚀 Serverless POST endpoint via AWS API Gateway
+- 🐘 Writes logs into a PostgreSQL table
+- 🔐 Uses AWS Secrets Manager to store DB credentials securely
+- 🔄 Timestamped entries (auto-generated)
+
+---
+
+## 📂 Table Schema
+
+The following SQL is used to create the `logs` table:
+
+```sql
+CREATE TABLE IF NOT EXISTS logs (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(255),
+  action VARCHAR(255),
+  page TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/your-org/lambda-logging-api.git
+cd lambda-logging-api
+```
+
+### 2. Set Up PostgreSQL
+
+You need access to a PostgreSQL database. Run the table creation script:
+
+```bash
+psql -h <host> -U <user> -d <dbname> -f create_logs_table.sql
+```
+
+Or manually create the table using a client like pgAdmin.
+
+---
+
+### 3. Store Credentials in Secrets Manager
+
+1. Go to **AWS Console → Secrets Manager → Store a new secret**
+2. Choose **Other type of secrets**
+3. Enter the following key-value pairs:
+   - `host`
+   - `port`
+   - `dbname`
+   - `username`
+   - `password`
+4. Name your secret (e.g., `PostgresLogDBSecret`)
+5. Save and copy the ARN or name for use in Lambda
+
+---
+
+### 4. Configure Lambda
+
+Make sure your Lambda function uses the IAM role that has permission to access the Secrets Manager secret.
+
+In the Lambda code, retrieve the secret to connect to PostgreSQL.
+
+---
+
+### 5. Connect Lambda to API Gateway
+
+- Create a new **HTTP API Gateway**
+- Add a route: `POST /log`
+- Integrate it with your deployed Lambda
+- Enable **CORS** if needed
+- Deploy and note the **Invoke URL**
+
+---
+
+## 🧪 Testing the API
+
+### Using `curl`
+
+```bash
+curl -X POST https://your-api-id.execute-api.us-east-1.amazonaws.com/log \
+  -H "Content-Type: application/json" \
+  -d '{"username": "postgres", "action": "login", "page": "/home"}'
+```
+
+### Using Postman
+
+1. Set method to `POST`
+2. URL: `https://your-api-id.execute-api.us-east-1.amazonaws.com/log`
+3. Headers: `Content-Type: application/json`
+4. Body (raw JSON):
+```json
+{
+  "username": "postgres",
+  "action": "login",
+  "page": "/home"
+}
+```
+
+---
+
+## ✅ Response
+
+```json
+{
+  "message": "Log saved successfully"
+}
+```
+
+---
+
+## 📌 Notes
+
+- Make sure your Lambda has access to the DB (via VPC, security group, or public IP access).
+- Secrets Manager is more secure than environment variables for storing sensitive data.
+
+---
+
+## 🧑‍💻 Author
+
+**Ernestine D. Motouom**  
+Cloud/DevOps Engineer  
+🔗 [LinkedIn](https://www.linkedin.com/in/ernestine-desiree-motouom-601716269/)
+
+---
+
+## 📄 License
+
+MIT License
